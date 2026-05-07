@@ -1,7 +1,0 @@
----
-alwaysApply: true
----
-
-# Evidence Factory — Workflow
-
-**Follow AGENTS.md (repo root).** Confirm on a feature branch before writing code; branch per task; 5-step response (goal → files → minimal change → diff → tests); diff summary + verification; CI is source of truth.

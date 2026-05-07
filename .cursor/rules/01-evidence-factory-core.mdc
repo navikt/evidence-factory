@@ -1,7 +1,0 @@
----
-alwaysApply: true
----
-
-# Evidence Factory — Core
-
-**Follow AGENTS.md (repo root).** Project: Evidence Factory. Core: provenance, no invented citations, structured JSON, actionable errors, tests; don’t hand-edit `evidence/` or `build/`.

@@ -1,7 +1,0 @@
----
-alwaysApply: true
----
-
-# Evidence Factory — Change Policy
-
-**Follow AGENTS.md (repo root).** Small diffs; plan first if >200 lines or >5 files; no unrelated refactors; no style renames unless asked; flag and defer out-of-scope requests to a separate task.

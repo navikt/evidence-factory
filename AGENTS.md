@@ -1,6 +1,6 @@
 # Agent guidance — Evidence Factory
 
-This repo uses a single source of truth for how AI agents should behave. **Read this file when working in the repository.** Cursor rules (`.cursor/rules/`) align with this document.
+This file is the single source of truth for how AI agents should behave in this repository. It is the authoritative reference for every change you make. If your setup uses a separate config file (e.g. `.github/.copilot-instructions.md`), point it here rather than duplicating guidance. 
 
 ---
 

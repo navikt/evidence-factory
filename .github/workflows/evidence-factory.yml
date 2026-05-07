@@ -40,7 +40,7 @@ jobs:
 
       # SBOM into evidence/
       - name: Generate SBOM (SPDX JSON)
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 #v0.24.0
         with:
           path: .
           format: spdx-json
@@ -49,7 +49,7 @@ jobs:
 
       # Vuln scan into evidence/
       - name: Trivy scan (repo filesystem)
-        uses: aquasecurity/trivy-action@0.34.1
+        uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8 #v0.36.0
         with:
           scan-type: "fs"
           scan-ref: "."
@@ -79,7 +79,7 @@ jobs:
         run: conftest test evidence/manifest.json --policy policy --namespace evidence
 
       - name: Upload evidence artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: evidence-pack
           path: |
@@ -91,7 +91,7 @@ jobs:
       # Optional: keyless sign the bundle on main pushes
       - name: Install Cosign
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: sigstore/cosign-installer@v4.0.0
+        uses: sigstore/cosign-installer@ba7bc0a3fef59531c69a25acd34668d6d3fe6f22 #v4.1.0
 
       - name: Sign evidence pack (keyless)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload signature bundle
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: evidence-pack-signature
           path: evidence/evidence-pack.sigstore.json
