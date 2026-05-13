@@ -45,6 +45,7 @@
       "globs": [
         "README.md",
         "AGENTS.md",
+        "CITATION.cff",
         "LICENSE",
         "CODEOWNERS",
         ".gitignore",
