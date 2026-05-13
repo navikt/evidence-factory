@@ -1,0 +1,49 @@
+# Citation File Format 1.2.0 — see https://citation-file-format.github.io/
+cff-version: 1.2.0
+message: "If you use this software in research, please cite it as below."
+type: software
+title: "Evidence Factory: Policy-as-Code for AI Act Compliance"
+authors:
+  - family-names: Brodwall
+    given-names: Sarah
+    affiliation: "Nav (Arbeids- og velferdsetaten / Norwegian Labour and Welfare Administration)"
+    orcid: "https://orcid.org/0009-0007-5575-3260"
+repository-code: "https://github.com/navikt/evidence-factory"
+url: "https://github.com/navikt/evidence-factory"
+abstract: >-
+  Evidence Factory is a proof-of-concept that treats AI Act governance
+  requirements as executable policy. It encodes governance obligations as
+  policy-as-code (OPA/Rego) and enforces them as CI/CD pipeline gates,
+  turning compliance failures into build failures rather than narrative
+  documentation. The project distinguishes verifiability (independent
+  determination that compliance claims are true) from traceability
+  (existence of linked artifacts), and frames the gap between them as
+  an open research problem.
+keywords:
+  - AI Act  
+  - AI governance
+  - policy-as-code
+  - compliance as infrastructure
+  - evidence
+  - OPA
+  - Open Policy Agent
+  - Rego
+  - Conftest
+  - verifiability
+  - traceability
+  - AI assurance
+  - public sector AI
+license: MIT
+
+
+# version: "0.1.0"
+# date-released: "2026-MM-DD"
+
+# preferred-citation:
+#   type: article
+#   title: "..."
+#   authors:
+#     - family-names: Brodwall
+#       given-names: Sarah
+#   year: 2026
+#   journal: "..."
