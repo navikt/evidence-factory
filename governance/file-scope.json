@@ -29,6 +29,7 @@
       "globs": [
         "src/**/*.py",
         "scripts/**/*.py",
+        "tests/**/*.py",
         "pyproject.toml",
         ".python-version",
         "requirements*.txt",
@@ -47,8 +48,6 @@
         "LICENSE",
         "CODEOWNERS",
         ".gitignore",
-        "tests/**/*.py",
-        ".vscode/**",
         ".github/**/*.md",
         ".github/workflows/**/*.yml"
       ],

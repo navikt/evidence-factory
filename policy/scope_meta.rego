@@ -14,14 +14,20 @@ matched_ids(path) := ids if {
 deny contains msg if {
 	path := input.tracked_files[_]
 	count(matched_ids(path)) == 0
-	msg := sprintf("unclassified tracked file: %s", [path])
+	msg := sprintf(
+		"File is not classified by any scope: %s. Next step: add a matching glob in governance/file-scope.json.",
+		[path],
+	)
 }
 
 deny contains msg if {
 	path := input.tracked_files[_]
 	ids := matched_ids(path)
 	count(ids) > 1
-	msg := sprintf("overlapping scope match for %s: %v", [path, ids])
+	msg := sprintf(
+		"File matches multiple scopes: %s -> %v. Next step: make those scope globs mutually exclusive.",
+		[path, ids],
+	)
 }
 
 scope_has_match(scope) if {
@@ -32,5 +38,8 @@ scope_has_match(scope) if {
 warn contains msg if {
 	scope := input.scopes[_]
 	not scope_has_match(scope)
-	msg := sprintf("scope globs match zero tracked files: %s", [scope.id])
+	msg := sprintf(
+		"Scope '%s' currently matches no tracked files. Next step: remove stale globs or add the intended files.",
+		[scope.id],
+	)
 }

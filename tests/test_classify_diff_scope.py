@@ -126,4 +126,4 @@ def test_missing_scope_file_fails(tmp_path: Path) -> None:
         tmp_path,
     )
     assert result.returncode != 0
-    assert "missing scope file" in result.stderr
+    assert "Scope file not found" in result.stderr

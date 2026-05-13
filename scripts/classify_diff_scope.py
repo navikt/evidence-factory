@@ -41,33 +41,56 @@ def git_stdout(args: list[str]) -> str:
 
 def load_scope_specs(scope_file: Path) -> list[ScopeSpec]:
     if not scope_file.exists():
-        raise ScopeConfigError(f"missing scope file: {scope_file}")
+        raise ScopeConfigError(
+            f"Scope file not found: {scope_file}. Next step: add governance/file-scope.json "
+            "or pass --scope-file with the correct path."
+        )
     try:
         raw = json.loads(scope_file.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        raise ScopeConfigError(f"invalid JSON in scope file: {scope_file}: {exc}") from exc
+        raise ScopeConfigError(
+            f"Scope file contains invalid JSON: {scope_file}. Next step: fix JSON syntax and try again. "
+            f"Details: {exc}"
+        ) from exc
 
     scopes = raw.get("scopes")
     if not isinstance(scopes, list) or not scopes:
-        raise ScopeConfigError("invalid scope schema: 'scopes' must be a non-empty array")
+        raise ScopeConfigError(
+            "Scope file schema is invalid: 'scopes' must be a non-empty array. "
+            "Next step: check governance/file-scope.json schema and add at least one scope entry."
+        )
 
     compiled: list[ScopeSpec] = []
     seen_ids: set[str] = set()
     for scope in scopes:
         if not isinstance(scope, dict):
-            raise ScopeConfigError("invalid scope schema: each scope must be an object")
+            raise ScopeConfigError(
+                "Scope file schema is invalid: each scope must be an object. "
+                "Next step: fix malformed entries in governance/file-scope.json."
+            )
         scope_id = scope.get("id")
         kind = scope.get("kind")
         globs = scope.get("globs")
         if not isinstance(scope_id, str) or not scope_id:
-            raise ScopeConfigError("invalid scope schema: each scope requires non-empty string 'id'")
+            raise ScopeConfigError(
+                "Scope file schema is invalid: each scope requires a non-empty string 'id'. "
+                "Next step: add an id for each scope in governance/file-scope.json."
+            )
         if scope_id in seen_ids:
-            raise ScopeConfigError(f"invalid scope schema: duplicate scope id '{scope_id}'")
+            raise ScopeConfigError(
+                f"Scope file schema is invalid: duplicate scope id '{scope_id}'. "
+                "Next step: make each scope id unique in governance/file-scope.json."
+            )
         seen_ids.add(scope_id)
         if not isinstance(kind, str) or not kind:
-            raise ScopeConfigError(f"invalid scope schema for '{scope_id}': missing non-empty 'kind'")
+            raise ScopeConfigError(
+                f"Scope '{scope_id}' is missing a non-empty 'kind'. "
+                "Next step: set a kind value in governance/file-scope.json."
+            )
         if not isinstance(globs, list) or not globs or any(not isinstance(g, str) or not g for g in globs):
-            raise ScopeConfigError(f"invalid scope schema for '{scope_id}': 'globs' must be non-empty string array")
+            raise ScopeConfigError(
+                f"Scope '{scope_id}' has invalid 'globs'. Next step: provide a non-empty array of non-empty strings."
+            )
 
         compiled.append(
             ScopeSpec(
@@ -89,21 +112,33 @@ def resolve_baseline(raw_baseline: str) -> tuple[str, list[str]]:
     warnings: list[str] = []
     baseline = raw_baseline.strip()
     if not baseline:
-        raise RuntimeError("missing baseline ref: set DIFF_BASELINE")
+        raise RuntimeError(
+            "Baseline ref is missing. Next step: set DIFF_BASELINE in the workflow before running the classifier."
+        )
     if baseline == ZERO_SHA:
         initial = git_stdout(["rev-list", "--max-parents=0", "HEAD"]).splitlines()
         if not initial:
-            raise RuntimeError("unable to resolve initial commit for all-zeros baseline")
+            raise RuntimeError(
+                "Baseline is all zeros and the first commit could not be resolved. "
+                "Next step: verify git history is available in this checkout (for CI, use fetch-depth: 0)."
+            )
         baseline = initial[0]
-        warnings.append("all-zeros baseline resolved to initial commit")
+        warnings.append(
+            "Baseline SHA was all zeros, so the classifier used the repository's first commit as baseline."
+        )
 
     check_commit = run_git(["cat-file", "-e", f"{baseline}^{{commit}}"])
     if check_commit.returncode != 0:
-        raise RuntimeError(f"baseline is not a valid commit: {baseline}")
+        raise RuntimeError(
+            f"Baseline '{baseline}' is not a valid commit. Next step: verify the baseline ref/SHA passed to DIFF_BASELINE."
+        )
 
     is_ancestor = run_git(["merge-base", "--is-ancestor", baseline, "HEAD"])
     if is_ancestor.returncode != 0:
-        raise RuntimeError(f"baseline is not reachable from HEAD: {baseline}")
+        raise RuntimeError(
+            f"Baseline '{baseline}' is not reachable from HEAD. Next step: ensure the checkout has full history "
+            "(fetch-depth: 0) and the correct base ref."
+        )
 
     return baseline, warnings
 
@@ -178,7 +213,7 @@ def main() -> None:
     try:
         specs = load_scope_specs(Path(args.scope_file))
     except ScopeConfigError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)
 
     raw_baseline = args.baseline or os.getenv("DIFF_BASELINE", "")
@@ -188,7 +223,7 @@ def main() -> None:
         tracked_set = set(tracked)
         changed = changed_files_against(baseline)
     except RuntimeError as exc:
-        print(f"error: {exc}", file=sys.stderr)
+        print(f"ERROR: {exc}", file=sys.stderr)
         sys.exit(1)
 
     changed_tracked = sorted(p for p in changed if p in tracked_set)
@@ -226,20 +261,34 @@ def main() -> None:
 
     violations: list[str] = []
     if unclassified:
-        violations.append(f"unclassified changed files: {', '.join(unclassified)}")
+        violations.append(
+            "Some changed files are not covered by any scope: "
+            f"{', '.join(unclassified)}. "
+            "Next step: add matching globs in governance/file-scope.json."
+        )
     if overlap:
-        violations.append(f"overlapping scope matches for changed files: {', '.join(overlap)}")
+        violations.append(
+            "Some changed files match more than one scope: "
+            f"{', '.join(overlap)}. "
+            "Next step: make scope globs mutually exclusive in governance/file-scope.json."
+        )
     if generated_changed:
-        violations.append("generated artifact paths changed under evidence/ or build/")
+        violations.append(
+            "Detected changes under generated artifact paths (evidence/ or build/). "
+            "Next step: remove those files from the commit and regenerate artifacts only in CI."
+        )
 
     for warning in warnings:
-        print(f"warning: {warning}", file=sys.stderr)
+        print(f"WARNING: {warning}", file=sys.stderr)
     if violations:
+        print("ERROR: Scope classification failed.", file=sys.stderr)
         for violation in violations:
-            print(f"error: {violation}", file=sys.stderr)
+            print(f"- {violation}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"wrote {out_path}")
+    print(
+        f"Scope classification complete. Wrote {out_path}. "
+        f"Changed scopes: {', '.join(changed_scope_ids) if changed_scope_ids else 'none'}.")
 
 
 if __name__ == "__main__":

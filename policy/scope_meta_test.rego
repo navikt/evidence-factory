@@ -27,7 +27,7 @@ test_unclassified_file_denied if {
 			{"id": "project", "globs": ["README.md"]},
 		],
 	}
-	"unclassified tracked file: misc.txt" in scope_meta.deny with input as input_doc
+	"File is not classified by any scope: misc.txt. Next step: add a matching glob in governance/file-scope.json." in scope_meta.deny with input as input_doc
 }
 
 test_overlapping_file_denied if {
@@ -39,7 +39,7 @@ test_overlapping_file_denied if {
 		],
 	}
 	some msg in scope_meta.deny with input as input_doc
-	startswith(msg, "overlapping scope match for README.md:")
+	startswith(msg, "File matches multiple scopes: README.md ->")
 }
 
 test_stale_scope_warns if {
@@ -50,5 +50,5 @@ test_stale_scope_warns if {
 			{"id": "stale", "globs": ["never/**"]},
 		],
 	}
-	"scope globs match zero tracked files: stale" in scope_meta.warn with input as input_doc
+	"Scope 'stale' currently matches no tracked files. Next step: remove stale globs or add the intended files." in scope_meta.warn with input as input_doc
 }

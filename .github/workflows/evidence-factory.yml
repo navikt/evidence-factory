@@ -30,6 +30,8 @@ jobs:
       - name: Install deps
         run: |
           python -m pip install --upgrade pip
+          # Future hardening: switch to hash-locked installs
+          # (pip-compile --generate-hashes + pip install --require-hashes)
           pip install -r requirements.txt
 
       - name: Install dev deps and run tests
@@ -47,7 +49,7 @@ jobs:
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             DIFF_BASELINE="${{ inputs.baseline_ref }}"
           else
-            echo "Unsupported event for baseline resolution: ${{ github.event_name }}" >&2
+            echo "Cannot set a diff baseline for event '${{ github.event_name }}'. Next step: use pull_request, push, or workflow_dispatch with baseline_ref." >&2
             exit 1
           fi
 
