@@ -23,6 +23,7 @@ This PoC uses a low-risk, decision-support scenario with synthetic data. The ML 
 - `src/` — training + evaluation code
 - `scripts/` — evidence assembly utilities
 - `governance/` — governance inputs (JSON; bundled + hashed + gated)
+- `governance/file-scope.json` — declarative scope map for CI routing + scope policy checks
 - `policy/` — OPA/Rego policies executed by Conftest
 - `.github/workflows/` — CI pipelines
 - `tests/` — Python tests (pytest) for evidence assembly

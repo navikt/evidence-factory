@@ -1,0 +1,72 @@
+{
+  "schema_version": "1",
+  "title": "Repository file scope",
+  "body": "Declarative classification used for CI routing and policy validation.",
+  "scopes": [
+    {
+      "id": "governance",
+      "kind": "governance",
+      "globs": [
+        "governance/**/*.json"
+      ],
+      "triggers_governance": true,
+      "triggers_ml": true,
+      "generated": false
+    },
+    {
+      "id": "policy",
+      "kind": "governance",
+      "globs": [
+        "policy/**/*.rego"
+      ],
+      "triggers_governance": true,
+      "triggers_ml": true,
+      "generated": false
+    },
+    {
+      "id": "implementation",
+      "kind": "implementation",
+      "globs": [
+        "src/**/*.py",
+        "scripts/**/*.py",
+        "pyproject.toml",
+        ".python-version",
+        "requirements*.txt",
+        "requirements*.in"
+      ],
+      "triggers_governance": false,
+      "triggers_ml": true,
+      "generated": false
+    },
+    {
+      "id": "project",
+      "kind": "project",
+      "globs": [
+        "README.md",
+        "AGENTS.md",
+        "LICENSE",
+        "CODEOWNERS",
+        ".gitignore",
+        "tests/**/*.py",
+        ".vscode/**",
+        ".github/**/*.md",
+        ".github/workflows/**/*.yml"
+      ],
+      "triggers_governance": false,
+      "triggers_ml": false,
+      "generated": false
+    },
+    {
+      "id": "generated",
+      "kind": "generated",
+      "globs": [
+        "evidence/**",
+        "build/**"
+      ],
+      "triggers_governance": false,
+      "triggers_ml": false,
+      "generated": true,
+      "disallow_in_commits": true
+    }
+  ]
+}
