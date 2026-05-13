@@ -2,13 +2,14 @@ package scope_meta
 
 import rego.v1
 
-matches_scope(path, scope) if {
-	some pattern in scope.globs
-	glob.match(pattern, ["/"], path)
+matched_ids(path) := ids if {
+	mapping := object.get(input, "scope_matches_by_file", {})
+	ids := object.get(mapping, path, [])
 }
 
-matched_ids(path) := ids if {
-	ids := [scope.id | scope := input.scopes[_]; matches_scope(path, scope)]
+deny contains msg if {
+	not is_object(object.get(input, "scope_matches_by_file", null))
+	msg := "Scope mapping is missing in classifier output. Next step: run scripts/classify_diff_scope.py before running the scope meta-policy gate."
 }
 
 deny contains msg if {
@@ -32,11 +33,12 @@ deny contains msg if {
 
 scope_has_match(scope) if {
 	some path in input.tracked_files
-	matches_scope(path, scope)
+	scope.id in matched_ids(path)
 }
 
 warn contains msg if {
 	scope := input.scopes[_]
+	not object.get(scope, "generated", false)
 	not scope_has_match(scope)
 	msg := sprintf(
 		"Scope '%s' currently matches no tracked files. Next step: remove stale globs or add the intended files.",

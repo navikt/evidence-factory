@@ -10,6 +10,12 @@ test_scope_meta_passes_with_unique_classification if {
 			"policy/evidence.rego",
 			"governance/file-scope.json",
 		],
+		"scope_matches_by_file": {
+			"README.md": ["project"],
+			"src/train.py": ["implementation"],
+			"policy/evidence.rego": ["policy"],
+			"governance/file-scope.json": ["governance"]
+		},
 		"scopes": [
 			{"id": "governance", "globs": ["governance/**/*.json"]},
 			{"id": "policy", "globs": ["policy/**/*.rego"]},
@@ -23,6 +29,9 @@ test_scope_meta_passes_with_unique_classification if {
 test_unclassified_file_denied if {
 	input_doc := {
 		"tracked_files": ["README.md", "misc.txt"],
+		"scope_matches_by_file": {
+			"README.md": ["project"]
+		},
 		"scopes": [
 			{"id": "project", "globs": ["README.md"]},
 		],
@@ -33,6 +42,9 @@ test_unclassified_file_denied if {
 test_overlapping_file_denied if {
 	input_doc := {
 		"tracked_files": ["README.md"],
+		"scope_matches_by_file": {
+			"README.md": ["a", "b"]
+		},
 		"scopes": [
 			{"id": "a", "globs": ["README.md"]},
 			{"id": "b", "globs": ["README.*"]},
@@ -45,6 +57,9 @@ test_overlapping_file_denied if {
 test_stale_scope_warns if {
 	input_doc := {
 		"tracked_files": ["README.md"],
+		"scope_matches_by_file": {
+			"README.md": ["project"]
+		},
 		"scopes": [
 			{"id": "project", "globs": ["README.md"]},
 			{"id": "stale", "globs": ["never/**"]},

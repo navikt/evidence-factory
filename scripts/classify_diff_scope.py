@@ -227,6 +227,8 @@ def main() -> None:
         sys.exit(1)
 
     changed_tracked = sorted(p for p in changed if p in tracked_set)
+    tracked_sorted = sorted(tracked)
+    tracked_matches = classify_paths(tracked_sorted, specs)
     matches = classify_paths(changed_tracked, specs)
 
     unclassified = sorted(path for path, ids in matches.items() if len(ids) == 0)
@@ -243,8 +245,9 @@ def main() -> None:
         "schema_version": "1",
         "baseline": baseline,
         "warnings": warnings,
-        "tracked_files": tracked,
+        "tracked_files": tracked_sorted,
         "scopes": to_scope_json(specs),
+        "scope_matches_by_file": tracked_matches,
         "changed_files": changed_tracked,
         "changed_scopes": changed_scope_ids,
         "triggers_governance": triggers_governance,

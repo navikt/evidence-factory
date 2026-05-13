@@ -49,6 +49,20 @@ python scripts/make_evidence_pack.py --build-dir build --evidence-dir evidence -
 
 **Policy (local vs CI):** The full Conftest policy requires SBOM and Trivy outputs in the evidence dir. In CI they are produced before the evidence pack is assembled. For a quick local run you can omit them; the policy gate will fail until SBOM/Trivy are present (e.g. run the full pipeline in a VM or rely on CI as source of truth).
 
+## Local scope preflight
+
+Before opening a PR, run the same early scope gate order used in CI:
+
+```bash
+python scripts/run_scope_preflight.py --baseline HEAD
+```
+
+This runs:
+1. `scripts/classify_diff_scope.py`
+2. `conftest test classify-output.json --policy policy --namespace scope_meta`
+
+If `conftest` is not installed locally, the script exits with a clear next step.
+
 ## Anonymity and data handling
  This repo must not contain sensitive data: synthetic data only; no secrets, internal URLs, PII, or internal docs. See [AGENTS.md](AGENTS.md) for the full list and enforcement policy.
  
