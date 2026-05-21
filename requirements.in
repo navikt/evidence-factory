@@ -1,4 +1,4 @@
 numpy
 scikit-learn
 joblib
-pathspec
+pathspec==0.12.1
