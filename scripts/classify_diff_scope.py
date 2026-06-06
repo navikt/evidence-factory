@@ -42,7 +42,7 @@ def git_stdout(args: list[str]) -> str:
 def load_scope_specs(scope_file: Path) -> list[ScopeSpec]:
     if not scope_file.exists():
         raise ScopeConfigError(
-            f"Scope file not found: {scope_file}. Next step: add governance/file-scope.json "
+            f"Scope file not found: {scope_file}. Next step: add config/file-scope.json "
             "or pass --scope-file with the correct path."
         )
     try:
@@ -57,7 +57,7 @@ def load_scope_specs(scope_file: Path) -> list[ScopeSpec]:
     if not isinstance(scopes, list) or not scopes:
         raise ScopeConfigError(
             "Scope file schema is invalid: 'scopes' must be a non-empty array. "
-            "Next step: check governance/file-scope.json schema and add at least one scope entry."
+            "Next step: check config/file-scope.json schema and add at least one scope entry."
         )
 
     compiled: list[ScopeSpec] = []
@@ -66,7 +66,7 @@ def load_scope_specs(scope_file: Path) -> list[ScopeSpec]:
         if not isinstance(scope, dict):
             raise ScopeConfigError(
                 "Scope file schema is invalid: each scope must be an object. "
-                "Next step: fix malformed entries in governance/file-scope.json."
+                "Next step: fix malformed entries in config/file-scope.json."
             )
         scope_id = scope.get("id")
         kind = scope.get("kind")
@@ -74,18 +74,18 @@ def load_scope_specs(scope_file: Path) -> list[ScopeSpec]:
         if not isinstance(scope_id, str) or not scope_id:
             raise ScopeConfigError(
                 "Scope file schema is invalid: each scope requires a non-empty string 'id'. "
-                "Next step: add an id for each scope in governance/file-scope.json."
+                "Next step: add an id for each scope in config/file-scope.json."
             )
         if scope_id in seen_ids:
             raise ScopeConfigError(
                 f"Scope file schema is invalid: duplicate scope id '{scope_id}'. "
-                "Next step: make each scope id unique in governance/file-scope.json."
+                "Next step: make each scope id unique in config/file-scope.json."
             )
         seen_ids.add(scope_id)
         if not isinstance(kind, str) or not kind:
             raise ScopeConfigError(
                 f"Scope '{scope_id}' is missing a non-empty 'kind'. "
-                "Next step: set a kind value in governance/file-scope.json."
+                "Next step: set a kind value in config/file-scope.json."
             )
         if not isinstance(globs, list) or not globs or any(not isinstance(g, str) or not g for g in globs):
             raise ScopeConfigError(
@@ -183,6 +183,7 @@ def write_outputs(payload: dict[str, object]) -> None:
     lines = [
         f"triggers_governance={str(payload['triggers_governance']).lower()}",
         f"triggers_ml={str(payload['triggers_ml']).lower()}",
+        f"build_evidence={str(payload['build_evidence']).lower()}",
         f"generated_changed={str(payload['generated_changed']).lower()}",
         f"changed_scopes={json.dumps(payload['changed_scopes'])}",
         f"unclassified_files={json.dumps(payload['unclassified_files'])}",
@@ -205,7 +206,7 @@ def output_path_from_env(explicit: str | None) -> Path:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--scope-file", default="governance/file-scope.json")
+    parser.add_argument("--scope-file", default="config/file-scope.json")
     parser.add_argument("--baseline", default=None)
     parser.add_argument("--output-json", default=None)
     args = parser.parse_args()
@@ -238,6 +239,7 @@ def main() -> None:
     scope_map = {scope.scope_id: scope for scope in specs}
     triggers_governance = any(scope_map[s].triggers_governance for s in changed_scope_ids)
     triggers_ml = any(scope_map[s].triggers_ml for s in changed_scope_ids)
+    build_evidence = triggers_governance or triggers_ml
 
     generated_changed = any(p.startswith("evidence/") or p.startswith("build/") for p in changed)
 
@@ -252,6 +254,7 @@ def main() -> None:
         "changed_scopes": changed_scope_ids,
         "triggers_governance": triggers_governance,
         "triggers_ml": triggers_ml,
+        "build_evidence": build_evidence,
         "generated_changed": generated_changed,
         "unclassified_files": unclassified,
         "overlap_files": overlap,
@@ -267,13 +270,13 @@ def main() -> None:
         violations.append(
             "Some changed files are not covered by any scope: "
             f"{', '.join(unclassified)}. "
-            "Next step: add matching globs in governance/file-scope.json."
+            "Next step: add matching globs in config/file-scope.json."
         )
     if overlap:
         violations.append(
             "Some changed files match more than one scope: "
             f"{', '.join(overlap)}. "
-            "Next step: make scope globs mutually exclusive in governance/file-scope.json."
+            "Next step: make scope globs mutually exclusive in config/file-scope.json."
         )
     if generated_changed:
         violations.append(

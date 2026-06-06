@@ -16,6 +16,8 @@ EXPECTED_PATHS_LOCAL = {
     "model/model.joblib",
     "model/train_meta.json",
     "model/test_set.npz",
+    "scope/file-scope.json",
+    "scope/classify-output.json",
     "governance/intended-purpose.json",
     "governance/human-oversight.json",
     "governance/data-governance.json",
@@ -66,15 +68,26 @@ def _minimal_governance_dir(governance_dir: Path) -> None:
         (governance_dir / name).write_text(json.dumps(minimal, indent=2), encoding="utf-8")
 
 
+def _minimal_scope_provenance(scope_file: Path, classification_file: Path) -> None:
+    """Create minimal scope registry and classifier output files."""
+    scope_file.parent.mkdir(parents=True, exist_ok=True)
+    classification_file.parent.mkdir(parents=True, exist_ok=True)
+    scope_file.write_text(json.dumps({"schema_version": "1", "scopes": []}, indent=2), encoding="utf-8")
+    classification_file.write_text(json.dumps({"schema_version": "1", "scope_matches_by_file": {}}, indent=2), encoding="utf-8")
+
+
 def test_manifest_covers_expected_files_local(tmp_path: Path) -> None:
     """After running make_evidence_pack, manifest lists exactly the expected local paths."""
     build_dir = tmp_path / "build"
     governance_dir = tmp_path / "governance"
+    scope_file = tmp_path / "config" / "file-scope.json"
+    classification_file = tmp_path / "classify-output.json"
     evidence_dir = tmp_path / "evidence"
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
     _minimal_build_dir(build_dir, REPO_ROOT)
     _minimal_governance_dir(governance_dir)
+    _minimal_scope_provenance(scope_file, classification_file)
 
     _run(
         [
@@ -84,6 +97,10 @@ def test_manifest_covers_expected_files_local(tmp_path: Path) -> None:
             str(build_dir),
             "--governance-dir",
             str(governance_dir),
+            "--scope-file",
+            str(scope_file),
+            "--scope-classification",
+            str(classification_file),
             "--evidence-dir",
             str(evidence_dir),
             "--out-tgz",
@@ -106,11 +123,14 @@ def test_manifest_excludes_manifest_and_tgz(tmp_path: Path) -> None:
     """Manifest must not include manifest.json or evidence-pack.tgz."""
     build_dir = tmp_path / "build"
     governance_dir = tmp_path / "governance"
+    scope_file = tmp_path / "config" / "file-scope.json"
+    classification_file = tmp_path / "classify-output.json"
     evidence_dir = tmp_path / "evidence"
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
     _minimal_build_dir(build_dir, REPO_ROOT)
     _minimal_governance_dir(governance_dir)
+    _minimal_scope_provenance(scope_file, classification_file)
 
     _run(
         [
@@ -120,6 +140,10 @@ def test_manifest_excludes_manifest_and_tgz(tmp_path: Path) -> None:
             str(build_dir),
             "--governance-dir",
             str(governance_dir),
+            "--scope-file",
+            str(scope_file),
+            "--scope-classification",
+            str(classification_file),
             "--evidence-dir",
             str(evidence_dir),
             "--out-tgz",
@@ -138,6 +162,8 @@ def test_manifest_includes_ci_artifacts_when_present(tmp_path: Path) -> None:
     """When SBOM and Trivy files exist in evidence dir, they appear in the manifest."""
     build_dir = tmp_path / "build"
     governance_dir = tmp_path / "governance"
+    scope_file = tmp_path / "config" / "file-scope.json"
+    classification_file = tmp_path / "classify-output.json"
     evidence_dir = tmp_path / "evidence"
     evidence_dir.mkdir(parents=True, exist_ok=True)
     (evidence_dir / "sbom.spdx.json").write_text('{"spdxVersion": "SPDX-2.2"}', encoding="utf-8")
@@ -145,6 +171,7 @@ def test_manifest_includes_ci_artifacts_when_present(tmp_path: Path) -> None:
 
     _minimal_build_dir(build_dir, REPO_ROOT)
     _minimal_governance_dir(governance_dir)
+    _minimal_scope_provenance(scope_file, classification_file)
 
     _run(
         [
@@ -154,6 +181,10 @@ def test_manifest_includes_ci_artifacts_when_present(tmp_path: Path) -> None:
             str(build_dir),
             "--governance-dir",
             str(governance_dir),
+            "--scope-file",
+            str(scope_file),
+            "--scope-classification",
+            str(classification_file),
             "--evidence-dir",
             str(evidence_dir),
             "--out-tgz",
@@ -172,11 +203,14 @@ def test_manifest_hashes_match_file_contents(tmp_path: Path) -> None:
     """SHA256 hashes in the manifest must match the actual file contents."""
     build_dir = tmp_path / "build"
     governance_dir = tmp_path / "governance"
+    scope_file = tmp_path / "config" / "file-scope.json"
+    classification_file = tmp_path / "classify-output.json"
     evidence_dir = tmp_path / "evidence"
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
     _minimal_build_dir(build_dir, REPO_ROOT)
     _minimal_governance_dir(governance_dir)
+    _minimal_scope_provenance(scope_file, classification_file)
 
     _run(
         [
@@ -186,6 +220,10 @@ def test_manifest_hashes_match_file_contents(tmp_path: Path) -> None:
             str(build_dir),
             "--governance-dir",
             str(governance_dir),
+            "--scope-file",
+            str(scope_file),
+            "--scope-classification",
+            str(classification_file),
             "--evidence-dir",
             str(evidence_dir),
             "--out-tgz",

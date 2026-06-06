@@ -49,7 +49,7 @@ Include a **brief diff summary** (what changed and why) and a **verification che
 - Do not rename things "for style" unless explicitly asked.
 - Do not make unrelated changes mid-session even if asked. If a request outside the current task scope arrives mid-session, flag it and defer to a separate task.
 - Do not commit to directories produced by CI (e.g. `evidence/` or `build/`). Any commit touching such directories will be rejected automatically.
-- When adding a new tracked file to the repository, ensure it is classified in `governance/file-scope.json`. CI will reject changes that contain unclassified files.
+- When adding a new tracked file to the repository, ensure it is classified in `config/file-scope.json`. CI will reject changes that contain unclassified files.
 
 ---
 
