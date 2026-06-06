@@ -10,7 +10,7 @@
         "governance/**/*.json"
       ],
       "triggers_governance": true,
-      "triggers_ml": true,
+      "triggers_ml": false,
       "generated": false
     },
     {
@@ -20,7 +20,17 @@
         "policy/**/*.rego"
       ],
       "triggers_governance": true,
-      "triggers_ml": true,
+      "triggers_ml": false,
+      "generated": false
+    },
+    {
+      "id": "config",
+      "kind": "config",
+      "globs": [
+        "config/**/*.json"
+      ],
+      "triggers_governance": true,
+      "triggers_ml": false,
       "generated": false
     },
     {
