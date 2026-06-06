@@ -15,6 +15,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--build-dir", default="build")
     ap.add_argument("--governance-dir", default="governance")
+    ap.add_argument("--scope-file", default="config/file-scope.json")
+    ap.add_argument("--scope-classification", default="classify-output.json")
     ap.add_argument("--evidence-dir", default="evidence")
     ap.add_argument("--out-tgz", default="evidence/evidence-pack.tgz")
     ap.add_argument("--git-sha", default=None, help="Git commit SHA (e.g. from CI); omitted if not set")
@@ -23,6 +25,8 @@ def main() -> None:
 
     build_dir = Path(args.build_dir)
     governance_dir = Path(args.governance_dir)
+    scope_file = Path(args.scope_file)
+    scope_classification = Path(args.scope_classification)
     evidence_dir = Path(args.evidence_dir)
 
     # Only remove what this script owns; leave e.g. sbom.spdx.json / trivy.sarif from CI
@@ -31,6 +35,8 @@ def main() -> None:
         shutil.rmtree(evidence_dir / "model")
     if (evidence_dir / "governance").exists():
         shutil.rmtree(evidence_dir / "governance")
+    if (evidence_dir / "scope").exists():
+        shutil.rmtree(evidence_dir / "scope")
     if (evidence_dir / "eval.json").exists():
         (evidence_dir / "eval.json").unlink()
 
@@ -45,6 +51,11 @@ def main() -> None:
 
     # copy governance (these are your governance artifacts)
     shutil.copytree(governance_dir, evidence_dir / "governance")
+
+    # copy scope provenance inputs so they are hashed into the signed manifest
+    (evidence_dir / "scope").mkdir(parents=True)
+    shutil.copy2(scope_file, evidence_dir / "scope" / "file-scope.json")
+    shutil.copy2(scope_classification, evidence_dir / "scope" / "classify-output.json")
 
     # NOTE: SBOM and Trivy outputs are expected to already exist in evidence_dir root
     # when running in CI. Locally you can skip them; CI will add them.

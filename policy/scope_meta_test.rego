@@ -8,16 +8,17 @@ test_scope_meta_passes_with_unique_classification if {
 			"README.md",
 			"src/train.py",
 			"policy/evidence.rego",
-			"governance/file-scope.json",
+			"config/file-scope.json",
 		],
 		"scope_matches_by_file": {
 			"README.md": ["project"],
 			"src/train.py": ["implementation"],
 			"policy/evidence.rego": ["policy"],
-			"governance/file-scope.json": ["governance"]
+			"config/file-scope.json": ["config"]
 		},
 		"scopes": [
 			{"id": "governance", "globs": ["governance/**/*.json"]},
+			{"id": "config", "globs": ["config/**/*.json"]},
 			{"id": "policy", "globs": ["policy/**/*.rego"]},
 			{"id": "implementation", "globs": ["src/**/*.py"]},
 			{"id": "project", "globs": ["README.md"]},
@@ -36,7 +37,7 @@ test_unclassified_file_denied if {
 			{"id": "project", "globs": ["README.md"]},
 		],
 	}
-	"File is not classified by any scope: misc.txt. Next step: add a matching glob in governance/file-scope.json." in scope_meta.deny with input as input_doc
+	"File is not classified by any scope: misc.txt. Next step: add a matching glob in config/file-scope.json." in scope_meta.deny with input as input_doc
 }
 
 test_overlapping_file_denied if {

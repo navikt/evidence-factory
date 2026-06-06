@@ -6,6 +6,8 @@ required := {
   "eval.json",
   "model/model.joblib",
   "model/train_meta.json",
+  "scope/file-scope.json",
+  "scope/classify-output.json",
   "governance/intended-purpose.json",
   "governance/human-oversight.json",
   "governance/data-governance.json",

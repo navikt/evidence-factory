@@ -16,7 +16,7 @@ deny contains msg if {
 	path := input.tracked_files[_]
 	count(matched_ids(path)) == 0
 	msg := sprintf(
-		"File is not classified by any scope: %s. Next step: add a matching glob in governance/file-scope.json.",
+		"File is not classified by any scope: %s. Next step: add a matching glob in config/file-scope.json.",
 		[path],
 	)
 }

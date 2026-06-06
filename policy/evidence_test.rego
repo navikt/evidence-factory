@@ -11,6 +11,8 @@ test_full_manifest_passes if {
 			{"path": "eval.json", "bytes": 100},
 			{"path": "model/model.joblib", "bytes": 200},
 			{"path": "model/train_meta.json", "bytes": 300},
+			{"path": "scope/file-scope.json", "bytes": 100},
+			{"path": "scope/classify-output.json", "bytes": 100},
 			{"path": "governance/intended-purpose.json", "bytes": 100},
 			{"path": "governance/human-oversight.json", "bytes": 100},
 			{"path": "governance/data-governance.json", "bytes": 100},
@@ -30,6 +32,8 @@ test_missing_required_file_denied if {
 			{"path": "eval.json", "bytes": 100},
 			{"path": "model/model.joblib", "bytes": 200},
 			{"path": "model/train_meta.json", "bytes": 300},
+			{"path": "scope/file-scope.json", "bytes": 100},
+			{"path": "scope/classify-output.json", "bytes": 100},
 			{"path": "governance/intended-purpose.json", "bytes": 100},
 			{"path": "governance/human-oversight.json", "bytes": 100},
 			{"path": "governance/data-governance.json", "bytes": 100},
@@ -49,6 +53,8 @@ test_missing_ci_file_denied if {
 			{"path": "eval.json", "bytes": 100},
 			{"path": "model/model.joblib", "bytes": 200},
 			{"path": "model/train_meta.json", "bytes": 300},
+			{"path": "scope/file-scope.json", "bytes": 100},
+			{"path": "scope/classify-output.json", "bytes": 100},
 			{"path": "governance/intended-purpose.json", "bytes": 100},
 			{"path": "governance/human-oversight.json", "bytes": 100},
 			{"path": "governance/data-governance.json", "bytes": 100},
@@ -68,6 +74,8 @@ test_doc_too_small_denied if {
 			{"path": "eval.json", "bytes": 100},
 			{"path": "model/model.joblib", "bytes": 200},
 			{"path": "model/train_meta.json", "bytes": 300},
+			{"path": "scope/file-scope.json", "bytes": 100},
+			{"path": "scope/classify-output.json", "bytes": 100},
 			{"path": "governance/intended-purpose.json", "bytes": 5},
 			{"path": "governance/human-oversight.json", "bytes": 100},
 			{"path": "governance/data-governance.json", "bytes": 100},
@@ -78,4 +86,23 @@ test_doc_too_small_denied if {
 		],
 	}
 	"doc too small (likely empty): governance/intended-purpose.json" in evidence.deny with input as manifest
+}
+
+test_missing_scope_classification_denied if {
+	manifest := {
+		"files": [
+			{"path": "eval.json", "bytes": 100},
+			{"path": "model/model.joblib", "bytes": 200},
+			{"path": "model/train_meta.json", "bytes": 300},
+			{"path": "scope/file-scope.json", "bytes": 100},
+			{"path": "governance/intended-purpose.json", "bytes": 100},
+			{"path": "governance/human-oversight.json", "bytes": 100},
+			{"path": "governance/data-governance.json", "bytes": 100},
+			{"path": "governance/risk-notes.json", "bytes": 100},
+			{"path": "governance/traceability.json", "bytes": 100},
+			{"path": "sbom.spdx.json", "bytes": 100},
+			{"path": "trivy.sarif", "bytes": 100},
+		],
+	}
+	"missing required file: scope/classify-output.json" in evidence.deny with input as manifest
 }

@@ -27,7 +27,7 @@ def _init_repo(tmp_path: Path) -> str:
     _git(tmp_path, "config", "user.email", "test@example.com")
     _git(tmp_path, "config", "user.name", "test")
 
-    _write(tmp_path / "governance" / "file-scope.json", (REPO_ROOT / "governance" / "file-scope.json").read_text())
+    _write(tmp_path / "config" / "file-scope.json", (REPO_ROOT / "config" / "file-scope.json").read_text())
     _write(tmp_path / "README.md", "hello\n")
     _write(tmp_path / "src" / "train.py", "print('x')\n")
     _write(tmp_path / "policy" / "evidence.rego", "package evidence\n")
@@ -46,7 +46,7 @@ def _run_classifier(tmp_path: Path, baseline: str) -> subprocess.CompletedProces
             sys.executable,
             str(REPO_ROOT / "scripts" / "classify_diff_scope.py"),
             "--scope-file",
-            str(tmp_path / "governance" / "file-scope.json"),
+            str(tmp_path / "config" / "file-scope.json"),
             "--baseline",
             baseline,
             "--output-json",
@@ -68,10 +68,11 @@ def test_implementation_change_sets_ml_trigger(tmp_path: Path) -> None:
     payload = json.loads((tmp_path / "classify-output.json").read_text(encoding="utf-8"))
     assert payload["triggers_ml"] is True
     assert payload["triggers_governance"] is False
+    assert payload["build_evidence"] is True
     assert "implementation" in payload["changed_scopes"]
 
 
-def test_governance_change_sets_both_triggers(tmp_path: Path) -> None:
+def test_governance_change_sets_governance_trigger(tmp_path: Path) -> None:
     base = _init_repo(tmp_path)
     _write(tmp_path / "governance" / "intended-purpose.json", '{"schema_version":"1"}\n')
     _git(tmp_path, "add", "governance/intended-purpose.json")
@@ -81,8 +82,9 @@ def test_governance_change_sets_both_triggers(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stderr
 
     payload = json.loads((tmp_path / "classify-output.json").read_text(encoding="utf-8"))
-    assert payload["triggers_ml"] is True
+    assert payload["triggers_ml"] is False
     assert payload["triggers_governance"] is True
+    assert payload["build_evidence"] is True
     assert "governance" in payload["changed_scopes"]
 
 
@@ -117,7 +119,7 @@ def test_missing_scope_file_fails(tmp_path: Path) -> None:
             sys.executable,
             str(REPO_ROOT / "scripts" / "classify_diff_scope.py"),
             "--scope-file",
-            str(tmp_path / "governance" / "file-scope.json"),
+            str(tmp_path / "config" / "file-scope.json"),
             "--baseline",
             "HEAD",
             "--output-json",
