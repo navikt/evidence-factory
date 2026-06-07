@@ -4,11 +4,12 @@ This repository is a proof-of-concept evidence factory for ML systems: it turns 
 
 **The evidence produced by this PoC does *not* by itself constitute full legal compliance.**
 
-Verification layers:
-1. **Existence:** the documentation files specified in evidence.rego exist and aren't empty. ✓ 
-2. **Structure:** the documentation files include the structure for the information required by the AI Act.
-3. **Coherence:** the information in the documentation is internally consistent and semantically valid.
-4. **Grounded validity:** the documentation's claims about the system are true as the system and the world around it change.    
+This project uses a four-layer model to label the depth of evidence:
+
+- L1 presence: The evidence exists.
+- L2 structure: The evidence is well-formed.
+- L3 coherence: The claims are mutually consistent across artifacts (referential consistency, e.g. the model version in the risk assessment matches the model card).
+- L4 grounded validity: The evidence stays true of the running system as the system, data, and context change. This is where the factory hands off to runtime monitoring and human review.
 
 Currently the system is working at **layer 1** (verification of the existence of the specified files). Layer 2 is next on the docket; 3 and 4 are open research questions. 
 
