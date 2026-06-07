@@ -44,7 +44,8 @@ pip install -r requirements.txt
 
 python src/train.py --out-dir build --seed 42
 python src/eval.py --build-dir build --out build/eval.json
-python scripts/make_evidence_pack.py --build-dir build --evidence-dir evidence --out-tgz evidence/evidence-pack.tgz
+python scripts/classify_diff_scope.py --baseline HEAD --output-json classify-output.json
+python scripts/make_evidence_pack.py --build-dir build --evidence-dir evidence --scope-classification classify-output.json --out-tgz evidence/evidence-pack.tgz
 ```
 
 **Policy (local vs CI):** The full Conftest policy requires SBOM and Trivy outputs in the evidence dir. In CI they are produced before the evidence pack is assembled. For a quick local run you can omit them; the policy gate will fail until SBOM/Trivy are present (e.g. run the full pipeline in a VM or rely on CI as source of truth).
