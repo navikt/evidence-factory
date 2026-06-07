@@ -4,6 +4,8 @@ This repository is a proof-of-concept evidence factory for ML systems: it turns 
 
 **The evidence produced by this PoC does *not* by itself constitute full legal compliance.**
 
+**[⇝ Check out the wiki ⇜](../../wiki)** for more about this project's architecture, design principles, regulatory mapping, and open problems.
+
 This project uses a four-layer model to label the depth of evidence:
 
 - L1 presence: The evidence exists.
@@ -11,9 +13,9 @@ This project uses a four-layer model to label the depth of evidence:
 - L3 coherence: The claims are mutually consistent across artifacts (referential consistency, e.g. the model version in the risk assessment matches the model card).
 - L4 grounded validity: The evidence stays true of the running system as the system, data, and context change. This is where the factory hands off to runtime monitoring and human review.
 
-Currently the system is working at **layer 1** (verification of the existence of the specified files). Layer 2 is next on the docket; 3 and 4 are open research questions. 
+Check out [How we label evidence](How-we-label-evidence) for an more in-depth explanation of the L1 - L4 model and verification/grounding/validation. 
 
-**[⇝ Check out the wiki ⇜](../../wiki)** for more about this project's architecture, design principles, regulatory mapping, and open problems.
+Currently the system is working primarily at **layer 1** (verification of the existence of the specified files). Layer 2 is next on the docket; 3 and 4 are open research questions. 
 
 ## Scope
  
@@ -64,9 +66,6 @@ This runs:
 2. `conftest test classify-output.json --policy policy --namespace scope_meta`
 
 If `conftest` is not installed locally, the script exits with a clear next step.
-
-## Anonymity and data handling
- This repo must not contain sensitive data: synthetic data only; no secrets, internal URLs, PII, or internal docs. See [AGENTS.md](AGENTS.md) for the full list and enforcement policy.
  
 ## License
 [MIT](LICENSE)
